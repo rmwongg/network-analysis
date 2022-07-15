@@ -1,0 +1,155 @@
+---
+title: 'Intro to SNA Badge'
+subtitle: "LASER Institute SNA Learning Lab 1"
+author: "Rachel Wong"
+date: "`r format(Sys.Date(),'%B %e, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+![](img/SNA_Intro_HX.png){width="30%"}
+
+The final activity for each learning lab provides space to work with data and to reflect on how the concepts and techniques introduced in each lab might apply to your own research.
+
+To earn a badge for each lab, you are required to respond to a set of prompts for two parts: 
+
+-   In Part I, you will reflect on your understanding of key concepts and begin to think about potential next steps for your own study.
+
+-   In Part II, you will create a simple data product in R that demonstrates your ability to apply a data analysis technique introduced in this learning lab.
+
+### Part I: Reflect and Plan
+
+Use the institutional library (e.g. [NCSU Library](https://www.lib.ncsu.edu/#articles)), [Google Scholar](https://scholar.google.com/) or search engine to locate a research article, presentation, or resource that applies social network analysis to an educational context or topic of interest. More specifically, **locate a network study that makes use of sociograms to visualize relational data.** You are also welcome to select one of the research papers listed in the [essential readings](https://github.com/laser-institute/essential-readings/tree/main/sna-labs/sna-lab-4) that may have piqued your interest.
+
+1.  Provide an APA citation for your selected study.
+
+    - Doran, C. (2011). Social network analysis as a method for analyzing interaction in collaborative online learning environments. Journal of Systemics, Cybernetics and Informatics, 9(7), 10–16.
+
+2.  Who are the network's actors and how are they represented visually?
+
+    -   The network's actors are the 19 inservice teachers enrolled in this course and the instructor of the course. There were two ways in which the interactions between the network's actors were represented visually. In one visualization, the instructor was represented by a large sphere, while the inservice teachers were represented by tinier shapes whereby the shapes represented their disciplinary affiliations. In the second visualization, only the interactions between the inservice teachers were represented, and similar to the first visualization, shapes were used to indicate disciplinary affiliation.
+
+3.  What ties connect these actors and how are they represented visually?
+
+    -   These actors are connected with each other because they are enrolled in a course that requires them to not only participate in online discussion forums, but also to comment on at leart two other peer's posts. Thus, they are connected by the course, the activity, and at least two discussion posts. To represent the level of interaction and direction of the interaction, single direction arrows were used to indicate the interaction between participants. Color was also used to indicate the level of connectedness; darker figures = higher degree of connectedness.
+
+4.  Why were these relations of interest to the researcher?
+
+    -   These relations are of interest to the researcher because it helps them understand the levels of interactions in an online learning environment. Online learning environments are tricky because students may need to be prompted to actively engage and interact with each other. Their interaction with each other and the instructor may determine the mastery of educational outcomes but the quality of their learning experience as well. 
+
+5.  Finally, what makes this collection of actors a social network?
+
+    -   All participants or actors have things in common (i.e., the course, the learning activities, the relicensure goal, etc.), and whether or not they like it, they are required to interact with each other as part of the course.
+
+Draft a research question for a population you may be interested in studying, or that would be of interest to educational researchers, and that would require the collection of relational data and answer the following questions:
+
+RQ: What resources are provided to help undergraduate introductory chemistry students form online support systems within an online discussion forum or platform like slack?
+
+1.  What relational data would need to be collected?
+
+    -   Actors: instructors, teaching assistants, students
+    -   Interactions between students on discussion forums, interactions between students and TAs/Instructor, total number of interactions, degree of interactions (does it just stop at one other person or are there multiple people on the same thread/responding to the same thread), etc. 
+
+2.  For what reason would relational data need to be collected in order to address this question?
+
+    -   The goal is to understand what resources are avialable to help  students form online support systems within a course's discussion forum/slack. Therefore, we need to look at the number of interactions students are having with others to understand how they are forming these support systems,and the interactions between professors and students/TAs and students. It may also be interesting to look at the type of interactions - interactions for clarifying thoughts/questions, or interactions pertaining to the general course (i.e., what are we covering in lecture today). 
+
+3.  Explain the analytical level at which these data would need to be collected and analyzed.
+
+    -   At the analytical level, we will need the measure of degree of interaction (the number of other participants with whom each participant interacted with. We might also look at closeness; whether participants communicated directly with each other or whether information flowed through another participant. Finally, it might be worth exploring the ways in which participants are connected with each other; was the interaction facilitated by students themselves or by the instructor/TA.
+    
+4.  How does this differ from the ways in which individual or group behavior is typically conceptualized and modeled in conventional educational research?
+
+    -   We are considering the impact of the network/system and the interactions between actors in order to understand a phenomenon. 
+
+### Part II: Data Product
+
+Using one of the data sets provided in your data folder, **your goal for this lab is to create a polished sociogram that visually represents this network.** For example, you may be interested in examining how shared characteristics among school leaders might help explain tie formation, such as gender, level of trust in colleagues, or whether they work at the school or district level.
+
+**Alternatively, you may use your own data set to estimate models akin to those we estimated in the guided practice.** 
+
+I highly recommend creating a new R script in your lab-1 folder to complete this task. When your code is ready to share, use the code chunk below to share the final code for your model and answer the questions that follow.
+
+```{r, my-data-product}
+#install.packages("tidyverse")
+
+library(tidygraph)
+library(tidyverse)
+library(readxl)
+library(ggraph)
+```
+
+```{r}
+year_3_collaboration<-read_excel("~/Documents/GitHub/network-analysis/lab-1/data/year_3_collaboration.xlsx", col_names = FALSE)
+year_3_collaboration
+
+student_attributes <- read_excel("~/Documents/GitHub/network-analysis/lab-1/data/student-attributes.xlsx")
+student_attributes
+
+rownames(year_3_collaboration) <- 1:43
+colnames(year_3_collaboration) <- 1:43
+year_3_collaboration
+
+```
+
+
+```{r}
+collaborationmatrix <- as.matrix(year_3_collaboration)
+collaborationmatrix
+
+class(year_3_collaboration)
+class(collaborationmatrix)
+
+collaboration_network <- as_tbl_graph(year_3_collaboration, 
+                                directed = TRUE)
+collaboration_network
+```
+
+```{r}
+collaboration_edges <- collaboration_network |>
+  activate(edges) |>
+  as_tibble()
+
+collaboration_edges
+
+collaboration_network <- tbl_graph(edges = collaboration_edges, # specifies edges
+                             nodes = student_attributes, # specifies nodes
+                             directed = TRUE) # specifies directionality
+
+collaboration_network
+```
+
+```{r}
+collaboration_network <- tbl_graph(edges = collaboration_edges, 
+                             nodes = student_attributes, 
+                             directed = TRUE)
+
+collaboration_network
+
+plot(collaboration_network)
+```
+
+
+
+```
+
+### Knit & Submit
+
+Congratulations, you've completed your Intro to SNA Badge! Complete the following steps to submit your work for review:
+
+1.  Change the name of the `author:` in the [YAML header](https://monashdatafluency.github.io/r-rep-res/yaml-header.html) at the very top of this document to your name. As noted in [Reproducible Research in R](https://monashdatafluency.github.io/r-rep-res/index.html), The YAML header controls the style and feel for knitted document but doesn't actually display in the final output.
+
+2.  Click the yarn icon above to "knit" your data product to a [HTML](https://bookdown.org/yihui/rmarkdown/html-document.html) file that will be saved in your R Project folder.
+
+3.  Commit your changes in GitHub Desktop and push them to your online GitHub repository.
+
+4.  Publish your HTML page the web using one of the following [publishing methods](https://rpubs.com/cathydatascience/518692):
+
+    -   Publish on [RPubs](https://rpubs.com) by clicking the "Publish" button located in the Viewer Pane when you knit your document. Note, you will need to quickly create a RPubs account.
+
+    -   Publishing on GitHub using either [GitHub Pages](https://pages.github.com) or the [HTML previewer](http://htmlpreview.github.io).
+
+5.  Post a new discussion on GitHub to our [SNA Badges forum](https://github.com/orgs/laser-institute/teams/network-analysis/discussions/1). In your post, include a link to your published web page and a short reflection highlighting one thing you learned from this lab and one thing you'd like to explore further.
